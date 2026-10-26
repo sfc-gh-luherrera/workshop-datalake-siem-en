@@ -323,8 +323,8 @@ AWS console would, but from SQL.
 
 ```sql
 USE SCHEMA SECURITY_LAKE.BRONZE;
-SELECT SPLIT_PART(relative_path,'/',1) AS fuente,
-       COUNT(*) AS ficheros,
+SELECT SPLIT_PART(relative_path,'/',1) AS source,
+       COUNT(*) AS files,
        ROUND(SUM(size)/1024/1024,1) AS mb
 FROM DIRECTORY(@S3_LOGS)
 GROUP BY 1 ORDER BY mb DESC;
@@ -343,7 +343,7 @@ Directly query the DNS files of one of the days that caught your attention in st
 
 ```sql
 SELECT $1:ts::TIMESTAMP_NTZ AS ts, $1:client_ip::STRING AS host,
-       $1:query::STRING AS query, METADATA$FILENAME AS fichero
+       $1:query::STRING AS query, METADATA$FILENAME AS file
 FROM @S3_LOGS/dns/2026/10/15/ (FILE_FORMAT => 'FF_JSON')
 WHERE LENGTH($1:query::STRING) > 40
 LIMIT 20;
@@ -678,14 +678,14 @@ talk to an agent that respects permissions (script `sql/07_ai_triage.sql`).
 ### 6.1 Triage
 
 ```sql
-SELECT detection, entity, unit, LEFT(triage::STRING, 300) AS triage_ia
+SELECT detection, entity, unit, LEFT(triage::STRING, 300) AS ai_triage
 FROM SECURITY_LAKE.GOLD.ALERTS WHERE triage IS NOT NULL LIMIT 10;
 ```
 
 Each alert carries a JSON with a summary, a severity, the MITRE ATT&CK tactic, and the
 recommended next steps. The `AI_COMPLETE` function, when given a JSON schema, returns structured
 data that can be queried with SQL, for example with
-`WHERE triage:severidad = 'critica'`.
+`WHERE triage:severity = 'critical'`.
 
 ### 6.2 Runbooks
 

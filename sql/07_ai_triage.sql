@@ -12,15 +12,15 @@ UPDATE ALERTS SET triage = AI_COMPLETE(
   prompt => 'You are an L2 SOC analyst. Triage this alert in English, concisely. Alert: '
             || TO_JSON(OBJECT_CONSTRUCT('detection', detection, 'entity', entity, 'event_time', event_time, 'details', details)),
   response_format => {'type': 'json', 'schema': {'type': 'object', 'properties': {
-      'resumen': {'type': 'string'},
-      'tactica_mitre': {'type': 'string'},
-      'severidad': {'type': 'string', 'enum': ['baja', 'media', 'alta', 'critica']},
-      'siguientes_pasos': {'type': 'array', 'items': {'type': 'string'}}},
-    'required': ['resumen', 'tactica_mitre', 'severidad', 'siguientes_pasos']}})
+      'summary': {'type': 'string'},
+      'mitre_tactic': {'type': 'string'},
+      'severity': {'type': 'string', 'enum': ['low', 'medium', 'high', 'critical']},
+      'next_steps': {'type': 'array', 'items': {'type': 'string'}}},
+    'required': ['summary', 'mitre_tactic', 'severity', 'next_steps']}})
 WHERE triage IS NULL;
 
-SELECT detection, entity, triage:severidad::STRING AS severidad, triage:tactica_mitre::STRING AS mitre,
-       triage:resumen::STRING AS resumen, triage:siguientes_pasos AS pasos
+SELECT detection, entity, triage:severity::STRING AS severity, triage:mitre_tactic::STRING AS mitre,
+       triage:summary::STRING AS summary, triage:next_steps AS steps
 FROM ALERTS ORDER BY event_time;
 
 -- 2) Runbooks indexed with Cortex Search (RAG over procedures)
@@ -55,7 +55,7 @@ CREATE OR REPLACE SEMANTIC VIEW SOC_SEMANTIC_VIEW
     alerts.entity AS entity COMMENT = 'Affected entity (host, user@ip, host -> domain)',
     alerts.alert_time AS event_time COMMENT = 'Time of the event that triggered the alert',
     alerts.status AS status COMMENT = 'Alert status',
-    alerts.severity AS triage:severidad::STRING COMMENT = 'Severity assigned by the AI triage',
+    alerts.severity AS triage:severity::STRING COMMENT = 'Severity assigned by the AI triage',
     net.src_ip AS src_ip COMMENT = 'Source IP',
     net.dst_ip AS dst_ip COMMENT = 'Destination IP',
     net.dst_port AS dst_port COMMENT = 'Destination port',
@@ -113,7 +113,7 @@ $$;
 -- Test via SQL (also available in Snowflake Intelligence and via REST API)
 WITH r AS (SELECT TRY_PARSE_JSON(SNOWFLAKE.CORTEX.DATA_AGENT_RUN('SECURITY_LAKE.GOLD.SOC_AGENT',
   '{"messages":[{"role":"user","content":[{"type":"text","text":"Which critical-severity alerts are there and which entity do they affect?"}]}]}')) AS j)
-SELECT f.value:text::STRING AS respuesta FROM r, LATERAL FLATTEN(r.j:content) f WHERE f.value:type::STRING = 'text';
+SELECT f.value:text::STRING AS answer FROM r, LATERAL FLATTEN(r.j:content) f WHERE f.value:type::STRING = 'text';
 
 -- 5) Managed MCP server (8.1, 5.4): exposes the agent to external MCP clients
 CREATE OR REPLACE MCP SERVER SOC_MCP
