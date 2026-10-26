@@ -1,0 +1,4 @@
+USE ROLE SOC_ADMIN;
+USE SCHEMA SECURITY_LAKE.BRONZE;
+-- One month of DNS files directly in S3
+LIST @S3_LOGS/dns/2026/10/;
