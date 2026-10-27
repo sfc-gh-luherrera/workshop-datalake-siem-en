@@ -87,28 +87,14 @@ WHERE DATEDIFF('hour', l.last_event, r.now_ts) >= 12;
 
 -- ---------------------------------------------------------------------
 -- ML: anomaly detection on daily outbound traffic per /24 subnet
+-- Built live with Cortex Code: prompts/ml_egress_anomalies.md
+-- Backup (run during preparation): sql/backup/ml_backup_models.sql
+--   creates NET_DAILY_SUBNET, EGRESS_DAILY_SUBNET, NET_ANOMALY_MODEL,
+--   EGRESS_ANOMALIES and NET_ANOMALIES (used by demo_snippets/ml.sql and the guides).
 -- ---------------------------------------------------------------------
-CREATE OR REPLACE VIEW NET_DAILY_SUBNET AS
-SELECT REGEXP_SUBSTR(src_ip, '^[0-9]+[.][0-9]+[.][0-9]+') AS subnet,
-       event_time::DATE::TIMESTAMP_NTZ AS day, SUM(bytes_out)::FLOAT AS bytes_out
-FROM SECURITY_LAKE.SILVER.NETWORK_ACTIVITY
-WHERE source = 'netflow'
-GROUP BY ALL;
-
-CREATE OR REPLACE SNOWFLAKE.ML.ANOMALY_DETECTION NET_ANOMALY_MODEL(
-  INPUT_DATA => TABLE(SELECT * FROM NET_DAILY_SUBNET WHERE day < '2026-10-01'),
-  SERIES_COLNAME => 'SUBNET', TIMESTAMP_COLNAME => 'DAY', TARGET_COLNAME => 'BYTES_OUT',
-  LABEL_COLNAME => '');
-
-CREATE OR REPLACE TABLE NET_ANOMALIES AS
-SELECT * FROM TABLE(NET_ANOMALY_MODEL!DETECT_ANOMALIES(
-  INPUT_DATA => TABLE(SELECT * FROM NET_DAILY_SUBNET WHERE day >= '2026-10-01'),
-  SERIES_COLNAME => 'SUBNET', TIMESTAMP_COLNAME => 'DAY', TARGET_COLNAME => 'BYTES_OUT',
-  CONFIG_OBJECT => {'prediction_interval': 0.999}));
-
 -- Sort by deviation: the exfiltration (10.20.8, 17-Oct) shows up ~1000x above forecast
 SELECT series, ts, y, ROUND(forecast) AS forecast, ROUND(y / forecast, 1) AS x_over_forecast
-FROM NET_ANOMALIES WHERE is_anomaly ORDER BY x_over_forecast DESC;
+FROM EGRESS_ANOMALIES WHERE is_anomaly ORDER BY x_over_forecast DESC;
 
 -- ---------------------------------------------------------------------
 -- Alert queue + hourly task + source health alert

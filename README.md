@@ -13,7 +13,9 @@ The step-by-step guide is in [`docs/evaluator_guide.md`](docs/evaluator_guide.md
 |---|---|
 | `docs/evaluator_guide.md` | Guide to replicate the lab, with expected results and challenges |
 | `generator/` | Synthetic log generator (13 months) with seeded incidents |
-| `sql/` | Scripts in execution order (`00` to `08`, and `99` to clean up) |
+| `sql/` | Scripts in execution order (`00` to `09`, and `99` to clean up) |
+| `sql/backup/` | Backup ML models, in case you don't use the Cortex Code prompts |
+| `prompts/` | Guided prompts for Cortex Code (egress anomaly ML, SIM fraud, masking) |
 | `streamlit/` | SOC dashboard for Streamlit in Snowflake |
 | `runbooks/` | Synthetic runbooks indexed by Cortex Search |
 
