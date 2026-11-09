@@ -1,0 +1,2 @@
+{"ts":"2026-11-01T10:00:00Z","query":"evil-domain.xyz","client":{"ip":"10.0.0.5"}}
+{"ts":"2026-11-01T10:00:02Z","query":"google.com","client":{"ip":"10.0.0.7"},"new_field":"ok"}

@@ -1,0 +1,5 @@
+{"meta":{"exported_by":"collector-1","count":2},
+ "records":[
+  {"eventTime":"2026-11-01T08:00:00Z","eventName":"ConsoleLogin","sourceIPAddress":"203.0.113.9","userIdentity":{"userName":"admin"}},
+  {"eventTime":"2026-11-01T08:01:00Z","eventName":"DeleteTrail","sourceIPAddress":"203.0.113.9","userIdentity":{"userName":"admin"}}
+ ]}

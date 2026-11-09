@@ -1,0 +1,2 @@
+{"timestamp":"2026-11-01T11:00:00Z","host":"web-01","message":"{\"user\":\"ana\",\"action\":\"login\",\"result\":\"fail\"}"}
+{"timestamp":"2026-11-01T11:00:05Z","host":"web-01","message":"not-a-json, plain text line"}

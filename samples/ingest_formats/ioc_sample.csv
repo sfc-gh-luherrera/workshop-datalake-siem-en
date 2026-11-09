@@ -1,0 +1,3 @@
+indicator,type,source,confidence,first_seen
+"evil-domain.xyz",domain,"feed, partner A",90,2026-10-01
+185.220.101.4,ip,abuse.ch,75,2026-10-15

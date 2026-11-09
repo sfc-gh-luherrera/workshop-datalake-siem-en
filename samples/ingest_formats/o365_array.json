@@ -1,0 +1,4 @@
+[
+  {"CreationTime":"2026-11-01T09:00:00Z","Operation":"UserLoggedIn","UserId":"ana@corp.com","ClientIP":"81.2.69.1"},
+  {"CreationTime":"2026-11-01T09:05:00Z","Operation":"FileDownloaded","UserId":"luis@corp.com","ClientIP":"81.2.69.2"}
+]
